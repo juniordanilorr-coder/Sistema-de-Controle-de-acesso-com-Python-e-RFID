@@ -2,7 +2,7 @@
 
 Projeto acadêmico desenvolvido no curso de Técnico em Automação Industrial, utilizando Arduino, Python e banco de dados SQLite.
 
-O sistema realiza o cadastro e a identificação de usuários por meio de cartões e tags RFID, permitindo controlar a autorização de acesso de cada dispositivo cadastrado.
+O sistema cadastra cartões RFID com perfis de acesso e controla quais áreas cada cartão pode acessar.
 
 ## Objetivo do projeto
 
@@ -15,7 +15,7 @@ O projeto tem como cenário inicial uma simulação de controle de acesso ao um 
 - **Python:** desenvolvimento da aplicação e gerenciamento das operações.
 - **Arduino:** comunicação com o leitor RFID e aquisição das identificações.
 - **MFRC522:** módulo responsável pela leitura dos cartões e tags RFID.
-- **SQLite:** armazenamento dos usuários e dispositivos cadastrados.
+- **SQLite:** armazenamento de cartões, perfis de acesso e áreas.
 - **Git e GitHub:** versionamento e gerenciamento do código-fonte.
 - **Visual Studio Code:** ambiente de desenvolvimento.
 
@@ -29,26 +29,21 @@ O projeto tem como cenário inicial uma simulação de controle de acesso ao um 
 
 ## Funcionalidades implementadas
 
-- Cadastro de usuários associado a uma tag RFID.
-- Associação de várias tags a um mesmo usuário.
+- Cadastro de cartões com uma identificação própria.
+- Cadastro individual de cartões, cada um com seu próprio perfil de acesso.
 - Identificação de cartões e tags cadastrados.
 - Autenticação e verificação de autorização.
-- Listagem dos usuários e dispositivos cadastrados.
-- Alteração do nome de um usuário.
+- Listagem dos cartões cadastrados.
+- Alteração da identificação do cartão.
 - Bloqueio e reativação individual de cartões ou tags.
-- Exclusão de dispositivos cadastrados.
-- Exclusão do usuário quando seu último dispositivo é removido.
+- Exclusão de cartões cadastrados.
 - Controle da leitura RFID por comandos enviados pelo Python ao Arduino.
 
 ## Estrutura do banco de dados
 
-O sistema utiliza SQLite e possui duas tabelas principais:
+O sistema utiliza SQLite para armazenar identificações, cartões RFID, perfis de acesso e áreas autorizadas. A autorização considera o UID e o perfil associado ao cartão.
 
-**usuarios:** armazena as informações das pessoas cadastradas, incluindo identificador, código e nome.
-
-**dispositivos_rfid:** armazena os cartões e tags associados aos usuários, incluindo código do dispositivo, UID, status e data de cadastro.
-
-Cada dispositivo possui uma UID única e um status independente. Dessa forma, uma pessoa pode possuir mais de uma tag, sem precisar criar vários cadastros.
+Cada dispositivo possui uma UID única, status e perfil de acesso próprios. Um perfil pode liberar várias áreas, e a autorização é avaliada pelo cartão apresentado. O menu não oferece mais a associação de uma nova tag a um usuário existente.
 
 ## Comunicação entre Arduino e Python
 
@@ -61,12 +56,23 @@ O Python envia comandos ao Arduino para controlar a leitura:
 
 Quando uma tag é identificada, o Arduino envia sua UID ao Python, que realiza a consulta no banco de dados e executa a operação correspondente.
 
-## Organização dos arquivos
+## Organização das pastas
 
-- `main.py`: menu principal e gerenciamento das operações.
-- `banco_dados.py`: criação e gerenciamento do banco SQLite.
-- `autentificacao.py`: regras de autenticação dos dispositivos.
-- `leitor_rfid.py`: módulo relacionado à leitura RFID.
+```text
+├── DATA/                        # Banco SQLite local já existente
+├── docs/                         # Documentação do projeto
+├── src/
+│   ├── dominio/                  # Cartão, perfil de acesso e área
+│   ├── aplicacao/servicos/       # Regras de autenticação e autorização
+│   ├── infraestrutura/
+│   │   ├── hardware/             # Comunicação com o leitor RFID
+│   │   └── persistencia/         # Repositório SQLite
+│   └── apresentacao/             # Menu de terminal
+├── main.py                       # Ponto de entrada
+└── README.md
+```
+
+Os arquivos de compatibilidade na raiz encaminham imports antigos para os módulos em `src/`. A base ativa continua em `DATA/sistema.db`; `sistema copy.db` e os arquivos `*backup.py` foram mantidos sem alterações.
 
 ## Como executar o projeto
 
@@ -104,7 +110,7 @@ Altere o valor conforme a porta utilizada no computador.
 Na pasta do projeto, execute:
 
 ```bash
-python banco_dados.py
+python -m src.infraestrutura.persistencia.banco_dados
 ```
 
 ### 6. Executar o sistema
@@ -125,3 +131,4 @@ python main.py
 Em desenvolvimento.
 
 Projeto acadêmico desenvolvido como atividade prática do curso de Técnico em Automação Industrial.
+
