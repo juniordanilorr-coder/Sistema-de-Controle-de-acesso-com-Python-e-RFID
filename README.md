@@ -1,134 +1,78 @@
 # Sistema de Controle de Acesso RFID
 
-Projeto acadêmico desenvolvido no curso de Técnico em Automação Industrial, utilizando Arduino, Python e banco de dados SQLite.
+Projeto acadêmico de Automação Industrial que integra Arduino, leitor RFID e uma aplicação desktop em Python. O sistema identifica cartões e verifica se o usuário pode acessar a área escolhida, conforme o perfil associado ao cartão.
 
-O sistema cadastra cartões RFID com perfis de acesso e controla quais áreas cada cartão pode acessar.
+## Objetivo
 
-## Objetivo do projeto
+Desenvolver um sistema de controle de acesso com permissões configuráveis por perfil e área, aplicando conceitos de programação orientada a objetos e organização em camadas.
 
-Desenvolver um sistema de identificação e controle de acesso que integre hardware e software, utilizando um leitor RFID conectado a um Arduino e uma aplicação desktop desenvolvida em Python.
+## Tecnologias e componentes
 
-O projeto tem como cenário inicial uma simulação de controle de acesso ao um parque, podendo ser adaptado para outros ambientes.
+- Python e Tkinter/ttk para a aplicação e interface gráfica.
+- Arduino Uno e leitor RFID-RC522 para ler os cartões.
+- Comunicação serial a 9600 baud entre Arduino e Python.
+- SQLite para armazenar usuários, cartões, perfis e áreas.
 
-## Tecnologias utilizadas
+## Funcionalidades
 
-- **Python:** desenvolvimento da aplicação e gerenciamento das operações.
-- **Arduino:** comunicação com o leitor RFID e aquisição das identificações.
-- **MFRC522:** módulo responsável pela leitura dos cartões e tags RFID.
-- **SQLite:** armazenamento de cartões, perfis de acesso e áreas.
-- **Git e GitHub:** versionamento e gerenciamento do código-fonte.
-- **Visual Studio Code:** ambiente de desenvolvimento.
+- Cadastrar usuário com nome e cartão RFID.
+- Editar o nome do usuário associado ao cartão selecionado.
+- Alterar o perfil do cartão selecionado; cada cartão pode ter seu próprio perfil.
+- Criar e editar perfis, escolhendo as áreas permitidas por caixas de seleção.
+- Verificar acesso ao escolher uma área e aproximar o cartão do leitor.
+- Bloquear ou reativar um cartão.
+- Excluir somente o cartão selecionado ou excluir o usuário e todos os cartões associados a ele.
 
-## Componentes de hardware
-
-- Arduino Uno.
-- Módulo leitor RFID-RC522.
-- Cartões RFID.
-- Tags RFID tipo chaveiro.
-- Cabos de conexão.
-
-## Funcionalidades implementadas
-
-- Cadastro de cartões com uma identificação própria.
-- Cadastro individual de cartões, cada um com seu próprio perfil de acesso.
-- Identificação de cartões e tags cadastrados.
-- Autenticação e verificação de autorização.
-- Listagem dos cartões cadastrados.
-- Alteração da identificação do cartão.
-- Bloqueio e reativação individual de cartões ou tags.
-- Exclusão de cartões cadastrados.
-- Controle da leitura RFID por comandos enviados pelo Python ao Arduino.
-
-## Estrutura do banco de dados
-
-O sistema utiliza SQLite para armazenar identificações, cartões RFID, perfis de acesso e áreas autorizadas. A autorização considera o UID e o perfil associado ao cartão.
-
-Cada dispositivo possui uma UID única, status e perfil de acesso próprios. Um perfil pode liberar várias áreas, e a autorização é avaliada pelo cartão apresentado. O menu não oferece mais a associação de uma nova tag a um usuário existente.
-
-## Comunicação entre Arduino e Python
-
-A comunicação ocorre pela porta serial, utilizando velocidade de 9600 baud.
-
-O Python envia comandos ao Arduino para controlar a leitura:
-
-- `L`: libera a leitura de uma tag RFID.
-- `P`: pausa a leitura RFID.
-
-Quando uma tag é identificada, o Arduino envia sua UID ao Python, que realiza a consulta no banco de dados e executa a operação correspondente.
-
-## Organização das pastas
+## Organização do projeto
 
 ```text
-├── DATA/                        # Banco SQLite local já existente
-├── docs/                         # Documentação do projeto
+├── DATA/                               # Banco SQLite local
+├── docs/                               # Documentação de arquitetura
 ├── src/
-│   ├── dominio/                  # Cartão, perfil de acesso e área
-│   ├── aplicacao/servicos/       # Regras de autenticação e autorização
+│   ├── dominio/                        # Cartão, perfil de acesso e área
+│   ├── aplicacao/servicos/             # Autenticação e autorização
 │   ├── infraestrutura/
-│   │   ├── hardware/             # Comunicação com o leitor RFID
-│   │   └── persistencia/         # Repositório SQLite
-│   └── apresentacao/             # Menu de terminal
-├── main.py                       # Ponto de entrada
+│   │   ├── hardware/                   # Comunicação com o leitor RFID
+│   │   └── persistencia/               # Repositório SQLite
+│   └── apresentacao/                   # Interface gráfica e menu
+├── main.py                             # Inicialização da interface
 └── README.md
 ```
 
-Os arquivos de compatibilidade na raiz encaminham imports antigos para os módulos em `src/`. A base ativa continua em `DATA/sistema.db`; `sistema copy.db` e os arquivos `*backup.py` foram mantidos sem alterações.
+A aplicação usa `DATA/sistema.db` e cria as tabelas necessárias ao iniciar.
 
-## Como executar o projeto
+## Como executar
 
-### 1. Requisitos
+### Requisitos
 
-- Python instalado.
-- Arduino IDE instalado.
-- Bibliotecas `pyserial` e `MFRC522`.
-- Arduino Uno e módulo RFID-RC522.
+- Python 3 com Tkinter.
+- Arduino IDE, Arduino Uno e leitor RFID-RC522.
+- Firmware do Arduino configurado para a comunicação serial esperada pela aplicação.
 
-### 2. Instalar a dependência Python
-
-No terminal:
+Instale a dependência Python:
 
 ```bash
 pip install pyserial
 ```
 
-### 3. Preparar o Arduino
-
-Carregue o código do leitor RFID na placa Arduino utilizando a Arduino IDE.
-
-### 4. Configurar a porta serial
-
-No arquivo `main.py`, configure a porta COM correspondente ao Arduino:
-
-```python
-PORTA = "COM11"
-```
-
-Altere o valor conforme a porta utilizada no computador.
-
-### 5. Inicializar o banco de dados
-
-Na pasta do projeto, execute:
-
-```bash
-python -m src.infraestrutura.persistencia.banco_dados
-```
-
-### 6. Executar o sistema
+Inicie a interface na pasta do projeto:
 
 ```bash
 python main.py
 ```
 
-## Desenvolvimento futuro
+Na janela, informe a porta serial do Arduino. O valor inicial é `COM11`; ajuste conforme a porta exibida no computador. A velocidade é 9600 baud.
 
-- Desenvolvimento de uma interface gráfica para gerenciamento do sistema.
-- Implementação de histórico de acessos.
-- Ampliação das funcionalidades de gerenciamento.
-- Melhorias na apresentação e visualização das informações.
+## Fluxo básico
 
-## Status do projeto
+1. Na aba **Perfis e áreas**, cadastre áreas. Use **Novo perfil** para criar ou selecione um perfil para modificar suas permissões; **Excluir perfil** remove o perfil selecionado.
+2. Na aba **Usuários e cartões**, cadastre o usuário e leia ou informe a UID do cartão.
+3. Selecione o cadastro para alterar o nome do usuário ou o perfil daquele cartão.
+4. Use **Excluir cartão** para remover apenas o cartão selecionado ou **Excluir usuário** para remover a pessoa e todos os cartões associados. As exclusões pedem confirmação.
+5. Na aba **Controle de acesso**, escolha a área e clique em **Ler cartão e verificar**.
 
-Em desenvolvimento.
+## Estado do projeto
 
-Projeto acadêmico desenvolvido como atividade prática do curso de Técnico em Automação Industrial.
+Em desenvolvimento. O sistema já oferece gerenciamento de usuários, cartões, perfis e áreas pela interface gráfica. Histórico de acessos e outras melhorias podem ser desenvolvidos em etapas futuras.
 
+Projeto acadêmico do curso Técnico em Automação Industrial.

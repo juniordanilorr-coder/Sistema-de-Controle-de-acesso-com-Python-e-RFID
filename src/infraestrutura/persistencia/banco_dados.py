@@ -291,6 +291,16 @@ def editar_perfil(id_perfil, nome, descricao=""):
         return False, "Já existe um perfil com esse nome."
 
 
+def excluir_perfil(id_perfil):
+    """Exclui um perfil e remove sua associação dos cartões."""
+    with conectar() as conexao:
+        cursor = conexao.execute(
+            "DELETE FROM perfis_acesso WHERE id = ?",
+            (id_perfil,),
+        )
+        return cursor.rowcount > 0
+
+
 def alterar_status_perfil(id_perfil, ativo):
     if ativo not in (0, 1):
         return False, "Status inválido."
@@ -640,6 +650,25 @@ def renomear_usuario(uid_rfid, novo_nome):
         return cursor.rowcount > 0
 
 
+def contar_cartoes_usuario(id_usuario):
+    with conectar() as conexao:
+        cursor = conexao.execute(
+            "SELECT COUNT(*) FROM dispositivos_rfid WHERE usuario_id = ?",
+            (id_usuario,),
+        )
+        return cursor.fetchone()[0]
+
+
+def excluir_usuario_por_id(id_usuario):
+    """Exclui a pessoa e todos os cartões associados a ela."""
+    with conectar() as conexao:
+        cursor = conexao.execute(
+            "DELETE FROM usuarios WHERE id = ?",
+            (id_usuario,),
+        )
+        return cursor.rowcount > 0
+
+
 def excluir_usuario(uid_rfid):
     uid_rfid = uid_rfid.strip().upper()
 
@@ -692,6 +721,7 @@ class RepositorioRFID:
     listar_perfis = staticmethod(listar_perfis)
     editar_perfil = staticmethod(editar_perfil)
     alterar_status_perfil = staticmethod(alterar_status_perfil)
+    excluir_perfil = staticmethod(excluir_perfil)
     atualizar_areas_perfil = staticmethod(atualizar_areas_perfil)
     definir_area_perfil = staticmethod(definir_area_perfil)
     listar_areas_perfil = staticmethod(listar_areas_perfil)
@@ -708,6 +738,8 @@ class RepositorioRFID:
     listar_usuarios = staticmethod(listar_usuarios)
     renomear_usuario = staticmethod(renomear_usuario)
     excluir_usuario = staticmethod(excluir_usuario)
+    contar_cartoes_usuario = staticmethod(contar_cartoes_usuario)
+    excluir_usuario_por_id = staticmethod(excluir_usuario_por_id)
 
 
     def cadastrar_cartao(self, identificacao, uid_rfid):

@@ -12,14 +12,15 @@ class LeitorRFID:
         self.timeout = timeout
 
     @staticmethod
-    def ler_uid(conexao):
+    def ler_uid(conexao, timeout_segundos=30):
         conexao.write(b"P")
         time.sleep(0.1)
         conexao.reset_input_buffer()
         print("\nAproxime o cartão ou a tag do leitor...")
         conexao.write(b"L")
+        limite = time.monotonic() + timeout_segundos
         try:
-            while True:
+            while time.monotonic() < limite:
                 linha = conexao.readline().decode(
                     "utf-8", errors="ignore"
                 ).strip()
@@ -27,6 +28,7 @@ class LeitorRFID:
                     uid = linha[4:].strip().upper()
                     print(f"\nUID identificada: {uid}")
                     return uid
+            raise TimeoutError("Tempo esgotado aguardando a leitura do cartão.")
         finally:
             conexao.write(b"P")
 

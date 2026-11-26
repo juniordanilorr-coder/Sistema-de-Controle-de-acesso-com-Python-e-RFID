@@ -1,5 +1,5 @@
-"""Ponto de entrada do sistema RFID."""
-from src.apresentacao.menu import MenuSistema
+"""Ponto de entrada da interface gráfica RFID."""
+from src.apresentacao.interface_grafica import InterfaceRFID
 
 if __name__ == "__main__":
-    MenuSistema().executar()
+    InterfaceRFID().mainloop()
